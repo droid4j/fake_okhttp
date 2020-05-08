@@ -12,11 +12,24 @@ import java.io.InputStreamReader;
 public class Response {
 
     private InputStream inputStream;
+    private int statusCode;
 
-    public Response(InputStream inputStream) {
+    public Response(int statusCode) {
+        this(statusCode, null);
+    }
+
+    public Response(int statusCode, InputStream inputStream) {
+        this.statusCode = statusCode;
         this.inputStream = inputStream;
     }
 
+    public boolean isSuccess() {
+        return statusCode == 200;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
 
     public String string() {
         return convertToString(inputStream);

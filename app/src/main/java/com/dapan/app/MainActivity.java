@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         File file = new File("");
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new RequestBody()
-                .addParam("file1", RequestBody.create(file))
+                // .addParam("file1", RequestBody.create(file))
                 .addParam("username", "test")
                 .addParam("password", "123123").type(RequestBody.FORM);
         Request request = new Request.Builder()

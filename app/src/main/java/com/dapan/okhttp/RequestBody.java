@@ -1,6 +1,7 @@
 package com.dapan.okhttp;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,6 +86,7 @@ public class RequestBody {
                     text = getText(key, (String) value);
                     cache.put(key, text);
                 }
+                Log.e("TAG", "" + text);
                 outputStream.write(text.getBytes());
             } else if (value instanceof Binary) {
                 Binary binary = (Binary) value;
@@ -96,6 +98,7 @@ public class RequestBody {
         }
 
         if (params.size() != 0) {
+            Log.e("TAG", "" + endBinary);
             outputStream.write(endBinary.getBytes());
         }
     }

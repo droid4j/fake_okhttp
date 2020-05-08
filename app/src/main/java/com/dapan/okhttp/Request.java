@@ -1,5 +1,10 @@
 package com.dapan.okhttp;
 
+import android.os.Build;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by per4j
  * on 2020/5/8
@@ -9,11 +14,17 @@ public class Request {
     final String url;
     final Method method;
     final RequestBody requestBody;
+    final Map<String, String> headers;
 
     public Request(Builder builder) {
         this.url = builder.url;
         this.method = builder.method;
         this.requestBody = builder.requestBody;
+        this.headers = new HashMap<>();
+    }
+
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
     }
 
     public static class Builder {
