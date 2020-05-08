@@ -5,4 +5,5 @@ package com.dapan.okhttp;
  * on 2020/5/8
  */
 public interface Call {
+    void enqueue(Callback callback);
 }
