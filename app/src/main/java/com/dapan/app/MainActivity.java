@@ -8,6 +8,7 @@ import com.dapan.okhttp.Call;
 import com.dapan.okhttp.Callback;
 import com.dapan.okhttp.OkHttpClient;
 import com.dapan.okhttp.Request;
+import com.dapan.okhttp.RequestBody;
 import com.dapan.okhttp.Response;
 
 import java.io.IOException;
@@ -25,7 +26,12 @@ public class MainActivity extends AppCompatActivity {
 
         // 其实，到这里，我们的OkHttpClient只是一个线程调度器而已，并没有进行网络操作
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://www.baidu.com").build();
+        RequestBody requestBody = new RequestBody().addParam("username", "test")
+                .addParam("password", "123123").type(RequestBody.FORM);
+        Request request = new Request.Builder()
+                .url("https://www.wanandroid.com/user/login")
+                .post(requestBody)
+                .build();
         Call newCall = client.newCall(request);
         newCall.enqueue(new Callback() {
             @Override
@@ -35,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e("TAG", "onResponse");
+                Log.e("TAG", "onResponse: " + response.string());
             }
         });
     }

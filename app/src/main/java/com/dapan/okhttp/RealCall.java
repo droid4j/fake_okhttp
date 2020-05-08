@@ -3,6 +3,9 @@ package com.dapan.okhttp;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by per4j
@@ -10,11 +13,11 @@ import java.io.IOException;
  */
 public class RealCall implements Call {
     final OkHttpClient client;
-    final Request request;
+    final Request originalRequest;
 
     public RealCall(OkHttpClient client, Request request) {
         this.client = client;
-        this.request = request;
+        this.originalRequest = request;
     }
 
     public static RealCall newRealCall(OkHttpClient okHttpClient, Request request) {
@@ -39,10 +42,41 @@ public class RealCall implements Call {
         @Override
         protected void execute() {
             // 最终来到这里执行
-            Response response = new Response();
             try {
+                final Request request = originalRequest;
                 Log.e("TAG", "execute: 开始请求：" + request.url);
-                callback.onResponse(RealCall.this, response);
+
+                URL url = new URL(request.url);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+                System.out.println(request.method.name);
+                urlConnection.setDoOutput(request.method.doOutput());
+                urlConnection.setRequestMethod(request.method.name);
+
+                RequestBody requestBody = request.requestBody;
+                if (requestBody != null) {
+                    String contentType = requestBody.getContentType();
+                    Log.e("TAG", "contentType: " + contentType);
+                    urlConnection.setRequestProperty("Content-Type", contentType);
+                    long contentLength = requestBody.getContentLength();
+                    Log.e("TAG", "contentLength: " + contentLength);
+                    urlConnection.setRequestProperty("Content-Length", Long.toString(contentLength));
+                }
+
+                urlConnection.connect();
+
+                if (requestBody != null) {
+                    requestBody.toWrite(urlConnection.getOutputStream());
+                }
+
+                int statusCode = urlConnection.getResponseCode();
+                if (statusCode == 200) {
+                    InputStream inputStream = urlConnection.getInputStream();
+                    Response response = new Response(inputStream);
+                    callback.onResponse(RealCall.this, response);
+                } else {
+                    callback.onFailure(RealCall.this, new IOException("status code: " + statusCode));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 callback.onFailure(RealCall.this, e);
