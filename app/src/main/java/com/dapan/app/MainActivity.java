@@ -11,6 +11,7 @@ import com.dapan.okhttp.Request;
 import com.dapan.okhttp.RequestBody;
 import com.dapan.okhttp.Response;
 
+import java.io.File;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,8 +26,11 @@ public class MainActivity extends AppCompatActivity {
         // 执行Call的 enqueue 就是创建一个线程，并提交到线程池，然后就会执行它的execute()方法，用于执行网络请求
 
         // 其实，到这里，我们的OkHttpClient只是一个线程调度器而已，并没有进行网络操作
+        File file = new File("");
         OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = new RequestBody().addParam("username", "test")
+        RequestBody requestBody = new RequestBody()
+                .addParam("file1", RequestBody.create(file))
+                .addParam("username", "test")
                 .addParam("password", "123123").type(RequestBody.FORM);
         Request request = new Request.Builder()
                 .url("https://www.wanandroid.com/user/login")

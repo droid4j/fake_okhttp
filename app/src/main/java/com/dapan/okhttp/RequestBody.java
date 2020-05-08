@@ -1,7 +1,13 @@
 package com.dapan.okhttp;
 
+import android.text.TextUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -53,6 +59,11 @@ public class RequestBody {
                     cache.put(key, text);
                 }
                 length += text.getBytes().length;
+            } else if (value instanceof Binary) {
+                Binary binary = (Binary) value;
+                String text = getText(key, binary);
+                length += text.getBytes().length;
+                length += binary.fileLength() + "\r\n".getBytes().length;
             }
         }
 
@@ -75,6 +86,12 @@ public class RequestBody {
                     cache.put(key, text);
                 }
                 outputStream.write(text.getBytes());
+            } else if (value instanceof Binary) {
+                Binary binary = (Binary) value;
+                String text = getText(key, binary);
+                outputStream.write(text.getBytes());
+                binary.onWrite(outputStream);
+                outputStream.write("\r\n".getBytes());
             }
         }
 
@@ -90,5 +107,46 @@ public class RequestBody {
                 + "\r\n"
                 + value
                 + "\r\n";
+    }
+
+    private String getText(String key, Binary value) {
+        return startBinary + "\r\n"
+                + "Content-Disposition: form-data; name=\"" + key + "\" filename = \"" + value.getFileName() + "\""
+                + "Context-Type: " + value.mimType() + "\r\n"
+                + "\r\n\r\n";
+    }
+
+    public static Binary create(final File file) {
+        return new Binary() {
+            @Override
+            public String getFileName() {
+                return file.getName();
+            }
+
+            @Override
+            public String mimType() {
+                FileNameMap fileNameMap = URLConnection.getFileNameMap();
+                String contentTypeFor = fileNameMap.getContentTypeFor(file.getAbsolutePath());
+                if (TextUtils.isEmpty(contentTypeFor)) {
+                    contentTypeFor = "application/octet-stream";
+                }
+                return contentTypeFor;
+            }
+
+            @Override
+            public long fileLength() {
+                return file.length();
+            }
+
+            @Override
+            public void onWrite(OutputStream outputStream) throws IOException {
+                FileInputStream inputStream = new FileInputStream(file);
+                byte[] buffer = new byte[1024];
+                int len = 0;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, len);
+                }
+            }
+        };
     }
 }
