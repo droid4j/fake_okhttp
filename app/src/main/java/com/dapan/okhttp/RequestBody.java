@@ -106,7 +106,7 @@ public class RequestBody {
     private String getText(String key, String value) {
         return startBinary + "\r\n"
                 + "Content-Disposition: form-data; name = \"" + key + "\"\r\n"
-                + "Context-Type: text/plain\r\n"
+                + "Content-Type: text/plain\r\n"
                 + "\r\n"
                 + value
                 + "\r\n";
@@ -115,7 +115,7 @@ public class RequestBody {
     private String getText(String key, Binary value) {
         return startBinary + "\r\n"
                 + "Content-Disposition: form-data; name=\"" + key + "\" filename = \"" + value.getFileName() + "\""
-                + "Context-Type: " + value.mimType() + "\r\n"
+                + "Content-Type: " + value.mimType() + "\r\n"
                 + "\r\n\r\n";
     }
 
